@@ -1,0 +1,59 @@
+plugins {
+    id 'java'
+    id 'idea'
+    id 'org.jetbrains.kotlin.jvm' version '1.4.10'
+    id 'com.github.johnrengelman.shadow' version '6.1.0'
+}
+
+sourceCompatibility = JavaVersion.VERSION_11
+targetCompatibility = JavaVersion.VERSION_11
+
+group 'io.github.overrun.mc2d'
+archivesBaseName = "minecraft2d"
+version project.mcversion
+
+repositories {
+    mavenCentral()
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
+
+jar {
+    from 'LICENSE'
+    manifest {
+        attributes 'Main-Class': 'io.github.overrun.mc2d.Main'
+    }
+}
+
+shadowJar {
+    from 'LICENSE'
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    archiveClassifier.set 'sources'
+    from sourceSets.main.allSource
+}
+
+dependencies {
+    compile "org.jetbrains:annotations:$annotations"
+    compile "it.unimi.dsi:fastutil:$fastutil"
+    compile "com.google.guava:guava:$guava-jre"
+    compile "org.apache.commons:commons-lang3:$lang3"
+    compile "org.yaml:snakeyaml:$snakeyaml"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+}
+
+idea {
+    project {
+        languageLevel.level = 'JDK_11'
+    }
+    module {
+        inheritOutputDirs = true
+    }
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = '11'
+}
