@@ -24,12 +24,18 @@
 
 package io.github.overrun.mc2d
 
-import io.github.overrun.mc2d.logger.DefaultLogger
-import io.github.overrun.mc2d.logger.LogManager
+import io.github.overrun.mc2d.client.Mc2dClient
+import io.github.overrun.mc2d.logger.Logger
 
+/**
+ * @author squid233
+ * @since 2020/09/14
+ */
 object Minecraft2D {
-    const val VERSION = "0.1.0-pre-alpha"
-    const val NAMESPACE = "minecraft2d"
-
-    fun getLogger(clazz: Class<*>): DefaultLogger = LogManager.getLogger("minecraft2d/${clazz.simpleName}")
+    val LOGGER = Logger(Minecraft2D::class.java)
+    const val VERSION = "0.2.0"
+    val width get()= Mc2dClient.instance.width
+    val height get() = Mc2dClient.instance.height
+    val mouseX get() = Mc2dClient.instance.mousePosition.x
+    val mouseY get() = Mc2dClient.instance.mousePosition.y
 }

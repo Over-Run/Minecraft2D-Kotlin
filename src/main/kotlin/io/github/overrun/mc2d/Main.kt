@@ -24,14 +24,24 @@
 
 package io.github.overrun.mc2d
 
-import io.github.overrun.mc2d.Main.LOGGER
 import io.github.overrun.mc2d.client.Mc2dClient
-
-object Main {
-    val LOGGER = Minecraft2D.getLogger(Main.javaClass)
-}
+import io.github.overrun.mc2d.client.renderer.GameRenderer
+import io.github.overrun.mc2d.lang.Language
+import io.github.overrun.mc2d.screen.Screens
 
 fun main() {
-    LOGGER.info("Starting Minecraft 2D ${Minecraft2D.VERSION}")
+    Minecraft2D.LOGGER.info("Starting Minecraft2D ${Minecraft2D.VERSION}")
+    Language.load("mc2d")
+    try {
+        initReg()
+    } catch (e: ClassNotFoundException) {
+        e.printStackTrace()
+    }
+    GameRenderer(Mc2dClient.instance).start()
     Mc2dClient.instance.isVisible = true
+}
+
+@Throws(ClassNotFoundException::class)
+private fun initReg() {
+    Class.forName(Screens.javaClass.name)
 }

@@ -25,25 +25,48 @@
 package io.github.overrun.mc2d.client
 
 import io.github.overrun.mc2d.Minecraft2D
-import io.github.overrun.mc2d.options.Options
-import io.github.overrun.mc2d.util.plus
-import javax.swing.ImageIcon
+import io.github.overrun.mc2d.input.KeyInput
+import io.github.overrun.mc2d.input.MouseInput
+import io.github.overrun.mc2d.option.Options
+import io.github.overrun.mc2d.screen.Screens
+import io.github.overrun.mc2d.util.ImgUtil
+import io.github.overrun.mc2d.util.Utils
+import java.awt.Graphics
+import java.awt.HeadlessException
+import java.awt.Point
 import javax.swing.JFrame
 
-class Mc2dClient: JFrame("Minecraft 2D ${Minecraft2D.VERSION} - Made by OverRun Organization") {
-    init {
-        setSize(Options.getI(Options.WIDTH, 1040), Options.getI(Options.HEIGHT, 486))
-        setLocationRelativeTo(null)
-        defaultCloseOperation = EXIT_ON_CLOSE
-        iconImage = ImageIcon(ClassLoader.getSystemResource("icon.png")).image
-        LOGGER.info("Max memory: ${
-            if (Runtime.getRuntime().maxMemory() shr 20 >= 1024) (Runtime.getRuntime().maxMemory() shr 30) + "GB" 
-            else (Runtime.getRuntime().maxMemory() shr 20) + "MB"}"
-        )
+/**
+ * @author squid233
+ * @since 2020/09/14
+ */
+class Mc2dClient private constructor() : JFrame("Minecraft2D ${Minecraft2D.VERSION}") {
+    override fun paint(g: Graphics) {
+        val buf = createImage(width, height)
+        val gg = buf.graphics
+        Screens.openScreen.render(gg)
+        g.drawImage(buf, 0, 0, null)
+    }
+
+    @Throws(HeadlessException::class)
+    override fun getMousePosition(): Point {
+        return Utils.compute(super.getMousePosition(), NP)
     }
 
     companion object {
-        val instance by lazy { Mc2dClient() }
-        val LOGGER = Minecraft2D.getLogger(Mc2dClient::class.java)
+        private const val serialVersionUID = 1L
+        val NP = Point()
+        var instance: Mc2dClient = Mc2dClient()
+    }
+
+    init {
+        setSize(Options.getI(Options.WIDTH, 854), Options.getI(Options.HEIGHT, 480))
+        setLocationRelativeTo(null)
+        defaultCloseOperation = EXIT_ON_CLOSE
+        addKeyListener(KeyInput())
+        addMouseListener(MouseInput())
+        iconImage = ImgUtil.readImage("icon.png")
+        val mem = Runtime.getRuntime().maxMemory() shr 20
+        Minecraft2D.LOGGER.info("Max memory: ${if (mem >= 1024) "${(mem shr 10)} GB" else "$mem MB"}")
     }
 }

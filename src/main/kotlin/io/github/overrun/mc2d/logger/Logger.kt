@@ -21,17 +21,68 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+
 package io.github.overrun.mc2d.logger
+
+import io.github.overrun.mc2d.option.Options
+import java.io.IOException
+import java.util.logging.ConsoleHandler
+import java.util.logging.FileHandler
+import java.util.logging.Level
+import java.util.logging.Logger
 
 /**
  * @author squid233
  * @since 2020/10/24
  */
-interface Logger {
-    fun info(msg: String?)
-    fun warn(msg: String?)
-    fun error(msg: String?)
-    fun fatal(msg: String?)
-    fun debug(msg: String?)
-    val name: String?
+class Logger(name: String?) {
+    val javaLogger: Logger = Logger.getLogger(name ?: "Unknown")
+
+    constructor(clazz: Class<*>) : this(clazz.simpleName)
+
+    fun info(msg: String?) = javaLogger.info(msg)
+
+    fun warn(msg: String?) = javaLogger.warning(msg)
+
+    fun error(msg: String?) = javaLogger.severe(msg)
+
+    fun debug(msg: String?) {
+        if (logDebugEnable()) javaLogger.config(msg)
+    }
+
+    fun exception(msg: String?, throwable: Throwable) = javaLogger.log(Level.SEVERE, msg, throwable)
+
+    companion object {
+        fun logDebugEnable() = Options.getB(Options.DEBUG)
+    }
+
+    init {
+        javaLogger.useParentHandlers = false
+        javaLogger.level = Level.CONFIG
+        val f = Formatter()
+        val ch: ConsoleHandler = object : ConsoleHandler() {
+            init {
+                setOutputStream(System.out)
+            }
+        }
+        ch.level = if (logDebugEnable()) Level.CONFIG else Level.INFO
+        ch.formatter = f
+        javaLogger.addHandler(ch)
+        try {
+            val fh = FileHandler("latest.log")
+            fh.level = Level.INFO
+            fh.formatter = f
+            javaLogger.addHandler(fh)
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+        try {
+            val fh = FileHandler("latest-debug.log")
+            fh.level = Level.CONFIG
+            fh.formatter = f
+            javaLogger.addHandler(fh)
+        } catch (e: IOException) {
+            e.printStackTrace()
+        }
+    }
 }

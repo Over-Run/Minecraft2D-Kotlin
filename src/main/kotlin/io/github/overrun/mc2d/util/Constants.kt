@@ -22,12 +22,14 @@
  * SOFTWARE.
  */
 
-package io.github.overrun.mc2d.util;
+package io.github.overrun.mc2d.util
 
 /**
  * @author squid233
- * @since 2020/10/25
+ * @since 2020/10/13
  */
 object Constants {
-    const val FALSE = "false"
+    const val DONE = "button.mc2d.done"
+    const val CANCEL = "button.mc2d.cancel"
+    const val BACK = "button.mc2d.back"
 }
