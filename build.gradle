@@ -33,7 +33,7 @@ tasks.withType(JavaCompile) {
 jar {
     from 'LICENSE'
     manifest {
-        attributes 'Main-Class': 'io.github.overrun.mc2d.Main'
+        attributes 'Main-Class': 'io.github.overrun.mc2d.MainKt'
     }
 }
 
