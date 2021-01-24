@@ -1,7 +1,7 @@
 plugins {
     id 'java'
     id 'idea'
-    id 'maven-publish'
+//    id 'maven-publish'
     id 'org.jetbrains.kotlin.jvm' version '1.4.21'
     id 'com.github.johnrengelman.shadow' version '6.1.0'
 }
@@ -9,21 +9,32 @@ plugins {
 sourceCompatibility = targetCompatibility = JavaVersion.VERSION_11
 
 group 'io.github.over-run'
-archivesBaseName = "minecraft2d"
-version '0.1.0'
+archivesBaseName = 'mc2d'
+version '0.2.0'
 
 repositories {
-    maven { url 'https://maven.aliyun.com/repository/central' }
     mavenCentral()
+    maven { url 'https://maven.aliyun.com/repository/central' }
 }
 
+project.ext.lwjglVersion = '3.2.3'
+
 dependencies {
-    compileOnly "org.jetbrains:annotations:$annotations"
-    implementation "it.unimi.dsi:fastutil:$fastutil"
-    implementation "com.google.guava:guava:$guava-jre"
-    //compile "org.apache.commons:commons-lang3:$lang3"
-    //compile "org.yaml:snakeyaml:$snakeyaml"
-    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+    implementation 'org.jetbrains.kotlin:kotlin-stdlib'
+    implementation 'com.google.guava:guava:30.1-jre'
+    implementation 'it.unimi.dsi:fastutil:8.4.4'
+    implementation 'org.apache.logging.log4j:log4j-core:2.14.0'
+    compileOnly 'org.jetbrains:annotations:20.1.0'
+    // Lwjgl libraries
+    implementation platform("org.lwjgl:lwjgl-bom:$lwjglVersion")
+    String[] lwjglDepends = ['', '-glfw', '-opengl']
+    String[] lwjglPlatforms = ['windows', 'windows-x86', 'linux-arm64', 'linux-arm32', 'linux', 'macos']
+    for (String depend in lwjglDepends) {
+        implementation "org.lwjgl:lwjgl$depend"
+        for (String platform in lwjglPlatforms) {
+            runtimeOnly "org.lwjgl:lwjgl$depend::natives-$platform"
+        }
+    }
 }
 
 tasks.withType(JavaCompile) {
@@ -33,7 +44,14 @@ tasks.withType(JavaCompile) {
 jar {
     from 'LICENSE'
     manifest {
-        attributes 'Main-Class': 'io.github.overrun.mc2d.MainKt'
+        attributes 'Main-Class': 'io.github.overrun.mc2d.Main',
+                'Specification-Title': 'lwjgl3',
+                'Specification-Vendor': 'LWJGL',
+                'Specification-Version': '3.2.3',
+                'Implementation-Title': 'Minecraft2D',
+                'Implementation-Vendor': 'Over-Run Organization',
+                'Implementation-Version': archiveVersion,
+                'Multi-Release': true
     }
 }
 
@@ -47,11 +65,8 @@ task sourcesJar(type: Jar, dependsOn: classes) {
     from 'LICENSE'
 }
 
-idea {
-    project.languageLevel.level = 'JDK_11'
-    module.inheritOutputDirs = true
-}
+idea.module.inheritOutputDirs = true
 
-publishing { repositories { mavenLocal() } }
+//publishing { repositories { mavenLocal() } }
 
 compileKotlin { kotlinOptions.jvmTarget = '11' }

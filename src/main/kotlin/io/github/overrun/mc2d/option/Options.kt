@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 Over-Run
+ * Copyright (c) 2020-2021 Over-Run
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,10 +24,10 @@
 
 package io.github.overrun.mc2d.option
 
-import io.github.overrun.mc2d.Minecraft2D
+import org.apache.logging.log4j.LogManager
 import java.io.File
+import java.io.FileOutputStream
 import java.io.FileReader
-import java.io.FileWriter
 import java.io.IOException
 import java.util.*
 
@@ -36,58 +36,41 @@ import java.util.*
  * @since 2020/09/15
  */
 object Options {
-    private val OPTIONS = Properties(5)
-    const val DEBUG = "debug"
-    const val WIDTH = "width"
-    const val HEIGHT = "height"
-    const val FPS = "fps"
-    const val LANG = "lang"
+    @JvmStatic
+    val OPTIONS = Properties(7)
+    const val BLOCK_HIGHLIGHT = "block.highlight"
+    const val KEY_CREATIVE_TAB = "key.creativeTab"
+    @JvmStatic
+    private val logger = LogManager.getLogger()
 
-    fun save() {
-        try {
-            FileWriter("options.properties").use { w -> OPTIONS.store(w, null) }
-        } catch (e: IOException) {
-            Minecraft2D.LOGGER.exception("Cannot save options!", e)
-        }
-    }
-
-    operator fun set(k: String, v: String?) {
-        OPTIONS.setProperty(k, v)
-    }
-
-    fun setAndSave(k: String, v: String?) {
-        Options[k] = v
-        save()
-    }
-
-    operator fun get(k: String) = OPTIONS.getProperty(k)
-
-    operator fun get(k: String, def: String?) = OPTIONS.getProperty(k, def)
-
-    fun getB(k: String) = Options[k].toBoolean()
-
-    fun getI(k: String, def: Int) = Options[k, def.toString()].toInt()
-
-    init {
-        val f = File("options.properties")
-        if (!f.exists()) {
+    @JvmStatic
+    fun init() {
+        val file = File("options.txt")
+        if (!file.exists()) {
             try {
-                FileWriter(f).use { fw ->
-                    OPTIONS[DEBUG] = "false"
-                    OPTIONS[WIDTH] = "854"
-                    OPTIONS[HEIGHT] = "480"
-                    OPTIONS[FPS] = "60"
-                    OPTIONS[LANG] = "en_us"
-                    OPTIONS.store(fw, null)
+                FileOutputStream(file).use { os ->
+                    OPTIONS[KEY_CREATIVE_TAB] = "E"
+                    OPTIONS[BLOCK_HIGHLIGHT] = "false"
+                    OPTIONS.store(os, null)
                 }
             } catch (e: IOException) {
-                Minecraft2D.LOGGER.exception("Cannot write options!", e)
+                logger.catching(e)
             }
         }
         try {
-            FileReader(f).use { fr -> OPTIONS.load(fr) }
+            FileReader(file).use { r -> OPTIONS.load(r) }
         } catch (e: IOException) {
-            Minecraft2D.LOGGER.exception("Cannot read options!", e)
+            logger.catching(e)
         }
+    }
+
+    @JvmStatic
+    fun getB(key: String?, def: String?): Boolean {
+        return if (OPTIONS.containsKey(key)) OPTIONS.getProperty(key).toBoolean() else def.toBoolean()
+    }
+
+    @JvmStatic
+    operator fun get(key: String?, def: String): String {
+        return OPTIONS.getProperty(key, def)
     }
 }

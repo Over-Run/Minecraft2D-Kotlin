@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 Over-Run
+ * Copyright (c) 2020-2021 Over-Run
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,31 +22,33 @@
  * SOFTWARE.
  */
 
-package io.github.overrun.mc2d.util
+package io.github.overrun.mc2d.block;
 
-import java.nio.ByteBuffer
+import com.google.common.collect.BiMap;
+import com.google.common.collect.HashBiMap;
+import io.github.overrun.mc2d.screen.CreativeTabScreen;
+import it.unimi.dsi.fastutil.bytes.Byte2ObjectLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.bytes.Byte2ObjectMap;
 
 /**
  * @author squid233
- * @since 2020/10/04
+ * @since 2021/01/09
  */
-object Utils {
-    @JvmStatic
-    fun putInt(buffer: ByteBuffer, values: IntArray): ByteBuffer {
-        for (value in values) {
-            buffer.putInt(value)
-        }
-        return buffer
-    }
+public final class Blocks {
+    public static final BiMap<String, Block> BLOCKS = HashBiMap.create(5);
+    public static final Byte2ObjectMap<Block> RAW_ID_BLOCKS = new Byte2ObjectLinkedOpenHashMap<>(5);
+    public static final int BLOCK_SIZE = 32;
+    public static final Block AIR = register("air", 0);
+    public static final Block GRASS_BLOCK = register("grass_block", 1);
+    public static final Block DIRT = register("dirt", 2);
+    public static final Block COBBLESTONE = register("cobblestone", 3);
+    public static final Block BEDROCK = register("bedrock", 4);
 
-    @JvmStatic
-    inline fun <T: AutoCloseable, R> T.use(block: (T) -> R): R {
-        // AutoCloseable doesn't support 'use' syntax
-        @Suppress("ConvertTryFinallyToUseCall")
-        try {
-            return block.invoke(this)
-        } finally {
-            close()
-        }
+    public static Block register(String id, int rawId) {
+        Block b = new Block((byte) rawId);
+        BLOCKS.putIfAbsent(id, b);
+        RAW_ID_BLOCKS.putIfAbsent(b.getRawId(), b);
+        return b;
     }
 }
+

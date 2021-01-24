@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 Over-Run
+ * Copyright (c) 2020-2021 Over-Run
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,31 +22,12 @@
  * SOFTWARE.
  */
 
-package io.github.overrun.mc2d.util
-
-import java.nio.ByteBuffer
+package io.github.overrun.mc2d.screen
 
 /**
  * @author squid233
- * @since 2020/10/04
+ * @since 2021/01/23
  */
-object Utils {
-    @JvmStatic
-    fun putInt(buffer: ByteBuffer, values: IntArray): ByteBuffer {
-        for (value in values) {
-            buffer.putInt(value)
-        }
-        return buffer
-    }
-
-    @JvmStatic
-    inline fun <T: AutoCloseable, R> T.use(block: (T) -> R): R {
-        // AutoCloseable doesn't support 'use' syntax
-        @Suppress("ConvertTryFinallyToUseCall")
-        try {
-            return block.invoke(this)
-        } finally {
-            close()
-        }
-    }
+class Slot(val x: Int, val y: Int) {
+    var item: Byte = 0
 }

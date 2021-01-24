@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 Over-Run
+ * Copyright (c) 2020-2021 Over-Run
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -22,31 +22,48 @@
  * SOFTWARE.
  */
 
-package io.github.overrun.mc2d.util
+package io.github.overrun.mc2d
 
-import java.nio.ByteBuffer
+import io.github.overrun.mc2d.util.GlfwUtils.isKeyPress
+import org.lwjgl.glfw.GLFW.*
+import java.io.Serializable
 
 /**
  * @author squid233
- * @since 2020/10/04
+ * @since 2021/01/09
  */
-object Utils {
-    @JvmStatic
-    fun putInt(buffer: ByteBuffer, values: IntArray): ByteBuffer {
-        for (value in values) {
-            buffer.putInt(value)
-        }
-        return buffer
+class Player: Serializable {
+    companion object {
+        private const val serialVersionUID = 1L
     }
 
-    @JvmStatic
-    inline fun <T: AutoCloseable, R> T.use(block: (T) -> R): R {
-        // AutoCloseable doesn't support 'use' syntax
-        @Suppress("ConvertTryFinallyToUseCall")
-        try {
-            return block.invoke(this)
-        } finally {
-            close()
+    @Transient
+    var handledBlock: Byte = 1
+    var x = .5
+    var y = 6.0
+
+    fun move() {
+        if (isKeyPress(GLFW_KEY_A)
+            || isKeyPress(GLFW_KEY_LEFT)
+        ) {
+            x -= .0625
+        }
+        if (isKeyPress(GLFW_KEY_D)
+            || isKeyPress(GLFW_KEY_RIGHT)
+        ) {
+            x += .0625
+        }
+        if (isKeyPress(GLFW_KEY_SPACE)
+            || isKeyPress(GLFW_KEY_W)
+            || isKeyPress(GLFW_KEY_UP)
+        ) {
+            y += .0625
+        }
+        if (isKeyPress(GLFW_KEY_LEFT_SHIFT)
+            || isKeyPress(GLFW_KEY_S)
+            || isKeyPress(GLFW_KEY_DOWN)
+        ) {
+            y -= .0625
         }
     }
 }

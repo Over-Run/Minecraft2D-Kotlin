@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 Over-Run
+ * Copyright (c) 2020-2021 Over-Run
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,29 +24,49 @@
 
 package io.github.overrun.mc2d.util
 
-import java.nio.ByteBuffer
+import org.lwjgl.opengl.GL11.*
 
 /**
  * @author squid233
- * @since 2020/10/04
+ * @since 2021/01/11
  */
-object Utils {
-    @JvmStatic
-    fun putInt(buffer: ByteBuffer, values: IntArray): ByteBuffer {
-        for (value in values) {
-            buffer.putInt(value)
+class TextureDrawer {
+    companion object {
+        private val instance by lazy { TextureDrawer() }
+
+        @JvmStatic
+        fun begin(texture: Int): TextureDrawer {
+            glEnable(GL_TEXTURE_2D)
+            glEnable(GL_BLEND)
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+            ImageReader.bindTexture(texture)
+            glBegin(GL_QUADS)
+            return instance
         }
-        return buffer
     }
 
-    @JvmStatic
-    inline fun <T: AutoCloseable, R> T.use(block: (T) -> R): R {
-        // AutoCloseable doesn't support 'use' syntax
-        @Suppress("ConvertTryFinallyToUseCall")
-        try {
-            return block.invoke(this)
-        } finally {
-            close()
-        }
+    fun color4f(r: Float, g: Float, b: Float, a: Float): TextureDrawer {
+        glColor4f(r, g, b, a)
+        return this
+    }
+
+    fun vertex2d(x: Double, y: Double): TextureDrawer {
+        glVertex2d(x, y)
+        return this
+    }
+
+    fun tex2dVertex2d(s: Double, t: Double, x: Double, y: Double): TextureDrawer {
+        glTexCoord2d(s, t)
+        return vertex2d(x, y)
+    }
+
+    fun bind(texture: Int): TextureDrawer {
+        end()
+        return begin(texture)
+    }
+
+    fun end(): TextureDrawer {
+        glEnd()
+        return this
     }
 }

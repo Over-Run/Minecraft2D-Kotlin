@@ -1,7 +1,7 @@
 /*
  * MIT License
  *
- * Copyright (c) 2020 Over-Run
+ * Copyright (c) 2020-2021 Over-Run
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -24,29 +24,25 @@
 
 package io.github.overrun.mc2d.util
 
-import java.nio.ByteBuffer
+import org.lwjgl.glfw.GLFW.*
+import org.lwjgl.system.MemoryUtil.NULL
 
 /**
  * @author squid233
- * @since 2020/10/04
+ * @since 2021/01/10
  */
-object Utils {
+object GlfwUtils {
     @JvmStatic
-    fun putInt(buffer: ByteBuffer, values: IntArray): ByteBuffer {
-        for (value in values) {
-            buffer.putInt(value)
-        }
-        return buffer
-    }
+    val HAND_CURSOR = glfwCreateStandardCursor(GLFW_HAND_CURSOR)
 
     @JvmStatic
-    inline fun <T: AutoCloseable, R> T.use(block: (T) -> R): R {
-        // AutoCloseable doesn't support 'use' syntax
-        @Suppress("ConvertTryFinallyToUseCall")
-        try {
-            return block.invoke(this)
-        } finally {
-            close()
-        }
-    }
+    fun isKeyPress(key: Int) =
+        glfwGetKey(glfwGetCurrentContext(), key) == GLFW_PRESS
+
+    @JvmStatic
+    fun isMousePress(button: Int) =
+        glfwGetMouseButton(glfwGetCurrentContext(), button) == GLFW_PRESS
+
+    @JvmStatic
+    fun setDefaultCursor() = glfwSetCursor(glfwGetCurrentContext(), NULL)
 }
